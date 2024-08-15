@@ -34,12 +34,19 @@ public class MainController implements Initializable {
     @FXML
     private Label status;
 
+    /** イメージ */
     Image image;
+    /** CTRLボタン押下状態 */
     boolean onCtrl = false;
+    /** 画像のズーム倍率 */
     int zoom = 100;
+    /** アプリケーションのプライマリステージ */
+    Stage primaryStage;
     
-    Stage stage;
-    
+    /**
+     * ペインのドラッグ＆ドロップイベント
+     * @param event
+     */
     @FXML
     void onDragDropped(DragEvent event) {
 		Dragboard board = event.getDragboard();
@@ -59,7 +66,10 @@ public class MainController implements Initializable {
 			});
 		}
     }
-    
+    /**
+     * ボタン押下
+     * @param event
+     */
     @FXML
     void onKeyPressed(KeyEvent event) {
     	System.out.println("onKeyPressed:" + event.getCode());
@@ -70,7 +80,10 @@ public class MainController implements Initializable {
 		default:
     	}
     }
-
+    /**
+     * ボタンリリース
+     * @param event
+     */
     @FXML
     void onKeyReleased(KeyEvent event) {
     	System.out.println("onKeyReleased:" + event.getCode());
@@ -81,47 +94,53 @@ public class MainController implements Initializable {
 		default:
     	}
     }
-
+    /**
+     * キータイプ（念のためボタンリリースと同じアクション）
+     * @param event
+     */
     @FXML
     void onKeyTyped(KeyEvent event) {
     	System.out.println("onKeyTyped:" + event.getCode());
-    	switch(event.getCode()) {
-    	case KeyCode.CONTROL:
-    		this.onCtrl = false;
-    		break;
-		default:
-    	}
+    	this.onKeyReleased(event);
     }
-
+    /**
+     * ホイール転がし
+     * @param event
+     */
     @FXML
     void onScroll(ScrollEvent event) {
     	System.out.println("onScroll");
+    	// CTRL押下時のみズームする。
     	if(this.onCtrl) {
-    		this.zoom = this.zoom - (int)(event.getDeltaY() / 40 * 5);
-    		if(this.zoom < 10) this.zoom = 10;
-    		System.out.println(this.zoom);
-			this.imageView.setFitHeight(this.image.getHeight() * ((double)this.zoom / 100));
-			this.imageView.setFitWidth(this.image.getWidth() * ((double)this.zoom / 100));
+    		// ホイール転がしで event.getDeltaY() == ±40となったのでそれに合わせた実装(1転がし1%)
+    		int z = this.zoom + (int)(event.getDeltaY() / 40);
+    		// 原寸10%未満は、10%に固定する。
+    		double height = this.image.getHeight() * ((double)z / 100);
+    		double width = this.image.getWidth() * ((double)z / 100);
+    		// 縦横の何れかが10を切る様なサイズ変更はしない。
+    		if(height > 10 && width > 10) {
+    			this.zoom = z;
+        		System.out.println(this.zoom);
+    			this.imageView.setFitHeight(height);
+    			this.imageView.setFitWidth(width);
+    		}
+    		
     	}
     }
-
-    @FXML
-    void onScrollFinished(ScrollEvent event) {
-    	System.out.println("onScrollFinished");
-    }
-
-    @FXML
-    void onScrollStarted(ScrollEvent event) {
-    	System.out.println("onScrollStarted");
-    }
-
+    /**
+     * メニュー File>Closeのアクション
+     * @param event	イベント
+     */
     @FXML
     void onMenuClose(ActionEvent event) {
-    	stage.close();
+    	this.primaryStage.close();
     }
+    /**
+     * 初期化処理
+     */
 	@Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
-		
+		// ペインのドラッグ＆ドロップイベントを設定
 		this.pain.setOnDragOver(event -> {
 			Dragboard board = event.getDragboard();
 			if( board.hasFiles() ) {
@@ -129,7 +148,11 @@ public class MainController implements Initializable {
 			}
 		});
 	}
-	public void setStage(Stage stage) {
-		this.stage = stage;
+	/**
+	 * 外部からプライマリステージを設定する
+	 * @param primaryStage
+	 */
+	public void setPrimaryStage(Stage primaryStage) {
+		this.primaryStage = primaryStage;
 	}
 }

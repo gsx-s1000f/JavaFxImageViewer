@@ -19,17 +19,25 @@ import javafx.fxml.FXMLLoader;
 
 public class Main extends Application {
 
-	/** プロパティファイル */
+	/** プロパティファイルパス */
 	final static String PROP_PATH = "./app/application.properties";
+	/** プロパティ */
 	final Properties prop = new Properties();
-	
+	/** プロパティキー：高さ */
+	final String HIGHT_NAME = "app.hight";
+	/** プロパティキー：幅 */
+	final String WIDTH_NAME = "app.width";
+	/** デフォルトプロパティ値：高さ */
+	double DEFAULT_HIGHT = 480;
+	/** デフォルトプロパティ値：幅 */
+	double DEFAULT_WIDTH = 640;
+
+	/** Scene*/
 	Scene scene;
 	
-	final String HIGHT_NAME = "app.hight";
-	final String WIDTH_NAME = "app.width";
-	double DEFAULT_HIGHT = 480;
-	double DEFAULT_WIDTH = 640;
-	
+	/**
+	 * アプリケーション機動
+	 */
 	@Override
 	public void start(Stage primaryStage) {
 		try {
@@ -41,13 +49,16 @@ public class Main extends Application {
 			this.scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
 			primaryStage.setScene(scene);
 			primaryStage.show();
+			// ControllerでStageを使えるようにする。
 			MainController controller = (MainController)loader.getController();
-			controller.setStage(primaryStage);
+			controller.setPrimaryStage(primaryStage);
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
 	}
-	
+	/**
+	 * 起動前処理
+	 */
 	@Override
 	public void init() throws Exception {
 		Path path = Paths.get(PROP_PATH);
@@ -65,6 +76,9 @@ public class Main extends Application {
 			this.prop.setProperty(WIDTH_NAME, String.valueOf(DEFAULT_WIDTH));
 		}
 	}
+	/**
+	 * 終了時処理
+	 */
 	@Override
 	public void stop() throws Exception {
 		System.out.println("application close.");
