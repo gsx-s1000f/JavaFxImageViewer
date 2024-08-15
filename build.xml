@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project default="create_run_jar" name="Create Runnable Jar for Project JavaFxImageViewer with libraries in sub-folder">
+    <!--this file was created by Eclipse Runnable JAR Export Wizard-->
+    <!--ANT 1.7 is required                                        -->
+    <!--define folder properties-->
+    <property name="dir.buildfile" value="."/>
+    <property name="dir.workspace" value="${dir.buildfile}/.."/>
+    <property name="dir.jarfile" value="${dir.buildfile}/dest"/>
+    <target name="create_run_jar">
+        <jar destfile="${dir.jarfile}/imageviewer.jar">
+            <manifest>
+                <attribute name="Main-Class" value="application.Main"/>
+                <attribute name="Class-Path" value=". imageviewer_lib/org.eclipse.fx.ide.css.jfx8_3.8.0.202204150904.jar imageviewer_lib/javafx.base.jar imageviewer_lib/javafx.controls.jar imageviewer_lib/javafx.fxml.jar imageviewer_lib/javafx.graphics.jar imageviewer_lib/javafx.media.jar imageviewer_lib/javafx.swing.jar imageviewer_lib/javafx.web.jar imageviewer_lib/javafx-swt.jar"/>
+            </manifest>
+            <fileset dir="${dir.buildfile}/bin"/>
+        </jar>
+        <delete dir="${dir.jarfile}/imageviewer_lib"/>
+        <mkdir dir="${dir.jarfile}/imageviewer_lib"/>
+        <copy file="D:/Atelier/eclipse/eclipse-java-2024-06-R-win32-x86_64/plugins/org.eclipse.fx.ide.css.jfx8_3.8.0.202204150904.jar" todir="${dir.jarfile}/imageviewer_lib"/>
+        <copy file="D:/Atelier/JavaFX/javafx-sdk-22.0.2/lib/javafx.base.jar" todir="${dir.jarfile}/imageviewer_lib"/>
+        <copy file="D:/Atelier/JavaFX/javafx-sdk-22.0.2/lib/javafx.controls.jar" todir="${dir.jarfile}/imageviewer_lib"/>
+        <copy file="D:/Atelier/JavaFX/javafx-sdk-22.0.2/lib/javafx.fxml.jar" todir="${dir.jarfile}/imageviewer_lib"/>
+        <copy file="D:/Atelier/JavaFX/javafx-sdk-22.0.2/lib/javafx.graphics.jar" todir="${dir.jarfile}/imageviewer_lib"/>
+        <copy file="D:/Atelier/JavaFX/javafx-sdk-22.0.2/lib/javafx.media.jar" todir="${dir.jarfile}/imageviewer_lib"/>
+        <copy file="D:/Atelier/JavaFX/javafx-sdk-22.0.2/lib/javafx.swing.jar" todir="${dir.jarfile}/imageviewer_lib"/>
+        <copy file="D:/Atelier/JavaFX/javafx-sdk-22.0.2/lib/javafx.web.jar" todir="${dir.jarfile}/imageviewer_lib"/>
+        <copy file="D:/Atelier/JavaFX/javafx-sdk-22.0.2/lib/javafx-swt.jar" todir="${dir.jarfile}/imageviewer_lib"/>
+    </target>
+</project>

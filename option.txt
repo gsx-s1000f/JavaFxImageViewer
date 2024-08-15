@@ -1,0 +1,14 @@
+--app-version 0.1
+--win-upgrade-uuid 56187946-a3f9-4b03-8b1c-cc97505440b7
+--win-per-user-install
+--type msi
+--win-menu
+--win-menu-group gsx-s1000f
+--name JavaFxImageViewer
+--win-dir-chooser
+--win-shortcut
+--win-shortcut-prompt
+--add-modules java.base,javafx.base,javafx.controls,javafx.fxml,javafx.graphics
+--input dest
+--main-class application.Main
+--main-jar imageviewer.jar

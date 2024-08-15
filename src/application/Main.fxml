@@ -1,18 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
-<?import javafx.scene.image.Image?>
+<?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.BorderPane?>
 
-<BorderPane xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.MainController">
+<BorderPane fx:id="pain" onDragDropped="#onDragDropped" onKeyPressed="#onKeyPressed" onKeyReleased="#onKeyReleased" onKeyTyped="#onKeyTyped" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.MainController">
    <top>
       <MenuBar BorderPane.alignment="CENTER">
         <menus>
           <Menu mnemonicParsing="false" text="File">
             <items>
+                  <MenuItem mnemonicParsing="false" text="Open" />
               <MenuItem mnemonicParsing="false" text="Close" />
             </items>
           </Menu>
@@ -29,10 +31,14 @@
         </menus>
       </MenuBar>
    </top>
+   <bottom>
+      <Label fx:id="status" text="no image" textAlignment="RIGHT" BorderPane.alignment="CENTER_RIGHT" />
+   </bottom>
    <center>
-      <ImageView fitHeight="150.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true" BorderPane.alignment="CENTER">
-         <image>
-            <Image url="@../../2009311000058.jpg" />
-         </image></ImageView>
+      <ScrollPane fx:id="scroll" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+         <content>
+            <ImageView fx:id="imageView" onScroll="#onScroll" onScrollFinished="#onScrollFinished" onScrollStarted="#onScrollStarted" pickOnBounds="true" preserveRatio="true" />
+         </content>
+      </ScrollPane>
    </center>
 </BorderPane>
