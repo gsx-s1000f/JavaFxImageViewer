@@ -75,6 +75,7 @@ public class MainController implements Initializable {
     	System.out.println("onKeyPressed:" + event.getCode());
     	switch(event.getCode()) {
     	case KeyCode.CONTROL:
+    		System.out.println("Ctrl on");
     		this.onCtrl = true;
     		break;
 		default:
@@ -89,6 +90,7 @@ public class MainController implements Initializable {
     	System.out.println("onKeyReleased:" + event.getCode());
     	switch(event.getCode()) {
     	case KeyCode.CONTROL:
+    		System.out.println("Ctrl off");
     		this.onCtrl = false;
     		break;
 		default:
@@ -112,6 +114,7 @@ public class MainController implements Initializable {
     	System.out.println("onScroll");
     	// CTRL押下時のみズームする。
     	if(this.onCtrl) {
+    		System.out.println("onCtrl");
     		// ホイール転がしで event.getDeltaY() == ±40となったのでそれに合わせた実装(1転がし1%)
     		int z = this.zoom + (int)(event.getDeltaY() / 40);
     		// 原寸10%未満は、10%に固定する。
