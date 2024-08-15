@@ -4,6 +4,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Label;
@@ -17,6 +18,7 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.BorderPane;
+import javafx.stage.Stage;
 
 public class MainController implements Initializable {
 
@@ -35,6 +37,8 @@ public class MainController implements Initializable {
     Image image;
     boolean onCtrl = false;
     int zoom = 100;
+    
+    Stage stage;
     
     @FXML
     void onDragDropped(DragEvent event) {
@@ -111,7 +115,10 @@ public class MainController implements Initializable {
     	System.out.println("onScrollStarted");
     }
 
-
+    @FXML
+    void onMenuClose(ActionEvent event) {
+    	stage.close();
+    }
 	@Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
 		
@@ -121,5 +128,8 @@ public class MainController implements Initializable {
 				event.acceptTransferModes(TransferMode.ANY);
 			}
 		});
+	}
+	public void setStage(Stage stage) {
+		this.stage = stage;
 	}
 }

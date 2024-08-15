@@ -33,13 +33,16 @@ public class Main extends Application {
 	@Override
 	public void start(Stage primaryStage) {
 		try {
-			BorderPane root = (BorderPane)FXMLLoader.load(getClass().getResource("Main.fxml"));
+			FXMLLoader loader = new FXMLLoader(getClass().getResource("Main.fxml"));
+			BorderPane root = (BorderPane)loader.load();
 			double hight = Double.parseDouble(prop.getProperty(HIGHT_NAME));
 			double width = Double.parseDouble(prop.getProperty(WIDTH_NAME));
 			this.scene = new Scene(root, width, hight);
 			this.scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
 			primaryStage.setScene(scene);
 			primaryStage.show();
+			MainController controller = (MainController)loader.getController();
+			controller.setStage(primaryStage);
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
@@ -64,6 +67,7 @@ public class Main extends Application {
 	}
 	@Override
 	public void stop() throws Exception {
+		System.out.println("application close.");
 		double hight = Double.parseDouble(prop.getProperty(HIGHT_NAME));
 		double width = Double.parseDouble(prop.getProperty(WIDTH_NAME));		
 		if(this.scene.getHeight() != hight ||
