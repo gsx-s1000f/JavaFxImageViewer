@@ -8,6 +8,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Properties;
 
 import javafx.application.Application;
@@ -52,6 +53,7 @@ public class Main extends Application {
 			// ControllerでStageを使えるようにする。
 			MainController controller = (MainController)loader.getController();
 			controller.setPrimaryStage(primaryStage);
+			controller.setArgs(this.getParameters().getRaw());
 		} catch(Exception e) {
 			e.printStackTrace();
 		}

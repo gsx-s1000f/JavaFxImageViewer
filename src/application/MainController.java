@@ -1,7 +1,9 @@
 package application;
 
+import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.List;
 import java.util.ResourceBundle;
 
 import javafx.event.ActionEvent;
@@ -34,6 +36,8 @@ public class MainController implements Initializable {
     @FXML
     private Label status;
 
+    List<String> args = null;
+    
     /** イメージ */
     Image image;
     /** CTRLボタン押下状態 */
@@ -157,5 +161,28 @@ public class MainController implements Initializable {
 	 */
 	public void setPrimaryStage(Stage primaryStage) {
 		this.primaryStage = primaryStage;
+	}
+	/**
+	 * 関連付けで起動した画像を表示する。
+	 * @param args
+	 */
+	public void setArgs(List<String> args) {
+		this.args = args;
+		if(args != null && args.size() > 0) {
+			File file = new File(args.get(0));
+			if(file.exists()) {
+				this.status.setText(file.getAbsolutePath());
+				try {
+					this.image = new Image(file.toURI().toURL().toString());
+					this.zoom = 100;
+					this.imageView.setFitHeight(this.image.getHeight());
+					this.imageView.setFitWidth(this.image.getWidth());
+					this.imageView.setImage(this.image);
+					this.imageView.setVisible(true);		
+				} catch (MalformedURLException e) {
+					e.printStackTrace();
+				}
+			}
+		}
 	}
 }
