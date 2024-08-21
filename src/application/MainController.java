@@ -169,7 +169,7 @@ public class MainController implements Initializable {
 	public void setArgs(List<String> args) {
 		this.args = args;
 		if(args != null && args.size() > 0) {
-			File file = new File(args.get(0));
+			File file = new File(args.get(0).trim());
 			if(file.exists()) {
 				this.status.setText(file.getAbsolutePath());
 				try {
