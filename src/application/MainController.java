@@ -56,17 +56,7 @@ public class MainController implements Initializable {
 		Dragboard board = event.getDragboard();
 		if (board.hasFiles()) {
 			board.getFiles().forEach(file -> {
-				this.status.setText(file.getAbsolutePath());
-				try {
-					this.image = new Image(file.toURI().toURL().toString());
-					this.zoom = 100;
-					this.imageView.setFitHeight(this.image.getHeight());
-					this.imageView.setFitWidth(this.image.getWidth());
-					this.imageView.setImage(this.image);
-					this.imageView.setVisible(true);
-				} catch (MalformedURLException e) {
-					e.printStackTrace();
-				}
+				this.changeImage(file);
 			});
 		}
     }
@@ -169,19 +159,26 @@ public class MainController implements Initializable {
 	public void setArgs(List<String> args) {
 		this.args = args;
 		if(args != null && args.size() > 0) {
-			File file = new File(args.get(0).trim());
-			if(file.exists()) {
-				this.status.setText(file.getAbsolutePath());
-				try {
-					this.image = new Image(file.toURI().toURL().toString());
-					this.zoom = 100;
-					this.imageView.setFitHeight(this.image.getHeight());
-					this.imageView.setFitWidth(this.image.getWidth());
-					this.imageView.setImage(this.image);
-					this.imageView.setVisible(true);		
-				} catch (MalformedURLException e) {
-					e.printStackTrace();
-				}
+			this.changeImage(new File(args.get(0).trim()));
+
+		}
+	}
+	/**
+	 * 画像が変更された
+	 * @param file
+	 */
+	void changeImage(File file) {
+		if(file.exists()) {
+			this.status.setText(file.getAbsolutePath());
+			try {
+				this.image = new Image(file.toURI().toURL().toString());
+				this.zoom = 100;
+				this.imageView.setFitHeight(this.image.getHeight());
+				this.imageView.setFitWidth(this.image.getWidth());
+				this.imageView.setImage(this.image);
+				this.imageView.setVisible(true);		
+			} catch (MalformedURLException e) {
+				e.printStackTrace();
 			}
 		}
 	}
