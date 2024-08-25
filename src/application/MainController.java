@@ -1,11 +1,20 @@
 package application;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Comparator;
 import java.util.List;
 import java.util.ResourceBundle;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+import application.util.FileUtils;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -20,6 +29,8 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.BorderPane;
+import javafx.stage.FileChooser;
+import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
 
 public class MainController implements Initializable {
@@ -44,6 +55,8 @@ public class MainController implements Initializable {
     boolean onCtrl = false;
     /** 画像のズーム倍率 */
     int zoom = 100;
+    /** アプリケーション */
+    Main application;
     /** アプリケーションのプライマリステージ */
     Stage primaryStage;
     
@@ -72,6 +85,12 @@ public class MainController implements Initializable {
     		System.out.println("Ctrl on");
     		this.onCtrl = true;
     		break;
+    	case KeyCode.LEFT:
+    		System.out.println("Left on");
+    		break;
+    	case KeyCode.RIGHT:
+    		System.out.println("Right on");
+    		break;
 		default:
     	}
     }
@@ -86,6 +105,14 @@ public class MainController implements Initializable {
     	case KeyCode.CONTROL:
     		System.out.println("Ctrl off");
     		this.onCtrl = false;
+    		break;
+    	case KeyCode.LEFT:
+    		System.out.println("Left off");
+    		this.forwardImage();
+    		break;
+    	case KeyCode.RIGHT:
+    		System.out.println("Right off");
+    		this.nextImage();
     		break;
 		default:
     	}
@@ -125,6 +152,37 @@ public class MainController implements Initializable {
     	}
     }
     /**
+     * メニュー File>Openのアクション
+     * @param event	イベント
+     */
+    @FXML
+    void onMenuOpen(ActionEvent event) {
+
+    	FileChooser chooser = new FileChooser();
+    	chooser.setTitle("ファイル選択");
+    	ObservableList<ExtensionFilter> list = chooser.getExtensionFilters();
+    	list.addAll(
+    			new FileChooser.ExtensionFilter("All", "*.*"),
+    			new FileChooser.ExtensionFilter("BMP", "*.bmp"),
+    			new FileChooser.ExtensionFilter("JPG", "*.jpg", "*.jpeg"),
+    			new FileChooser.ExtensionFilter("PNG", "*.png")
+			);
+    	String defaultDir = this.application.getDefaultDir();
+    	if(defaultDir != null && defaultDir.length() > 0) {
+    		File initial = new File(defaultDir);
+    		if(initial.exists() && initial.isDirectory()) {
+    	    	chooser.setInitialDirectory(initial);
+    		}
+    	}
+    	List<File> files = chooser.showOpenMultipleDialog(this.primaryStage);
+    	for(File file: files) {
+	    	if(file != null) {
+	    		this.changeImage(file);
+	    		this.application.setDefaultDir(file.getParent()); 
+	    	}
+    	}
+    }
+    /**
      * メニュー File>Closeのアクション
      * @param event	イベント
      */
@@ -144,6 +202,13 @@ public class MainController implements Initializable {
 				event.acceptTransferModes(TransferMode.ANY);
 			}
 		});
+	}
+	/**
+	 * 外部からアプリケーションを設定する。
+	 * @param	application
+	 */
+	public void setApplication(Main application) {
+		this.application = application;
 	}
 	/**
 	 * 外部からプライマリステージを設定する
@@ -168,7 +233,7 @@ public class MainController implements Initializable {
 	 * @param file
 	 */
 	void changeImage(File file) {
-		if(file.exists()) {
+		if(file.exists() && file.isFile()) {
 			this.status.setText(file.getAbsolutePath());
 			try {
 				this.image = new Image(file.toURI().toURL().toString());
@@ -180,6 +245,48 @@ public class MainController implements Initializable {
 			} catch (MalformedURLException e) {
 				e.printStackTrace();
 			}
+		}
+	}
+	void forwardImage() {
+		String nowImage = this.status.getText();
+		if(nowImage == null || nowImage.length() < 1) {
+			return;
+		}
+		Path image = Paths.get(nowImage);
+		Path parent = image.getParent();
+		
+		try (Stream<Path> stream = Files.list(parent)){
+			List<Path> paths = stream.filter(p -> !Files.isDirectory(p))
+				.filter(p -> FileUtils.checkExtension(p, "bmp", "jpg", "jpeg", "png"))
+				.sorted(Comparator.reverseOrder()).collect(Collectors.toList());
+			int index = paths.indexOf(image);
+			if (index > -1 && index + 1 < paths.size()) {
+				this.changeImage(paths.get(index + 1).toFile());
+			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	void nextImage() {
+		String nowImage = this.status.getText();
+		if(nowImage == null || nowImage.length() < 1) {
+			return;
+		}
+		Path image = Paths.get(nowImage);
+		Path parent = image.getParent();
+		
+		try (Stream<Path> stream = Files.list(parent)){
+			List<Path> paths = stream.filter(p -> !Files.isDirectory(p))
+				.filter(p -> FileUtils.checkExtension(p, "bmp", "jpg", "jpeg", "png"))
+				.sorted(Comparator.naturalOrder()).collect(Collectors.toList());
+			int index = paths.indexOf(image);
+			if (index > -1 && index + 1 < paths.size()) {
+				this.changeImage(paths.get(index + 1).toFile());
+			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 }

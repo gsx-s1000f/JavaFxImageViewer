@@ -2,6 +2,7 @@ package application;
 	
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -23,6 +24,8 @@ public class Main extends Application {
 	final static String PROP_PATH = "./app/application.properties";
 	/** プロパティ */
 	final Properties prop = new Properties();
+	/** プロパティキー：初期フォルダ */
+	final String DEFAULT_DIR ="app.default.dir";
 	/** プロパティキー：高さ */
 	final String HIGHT_NAME = "app.hight";
 	/** プロパティキー：幅 */
@@ -49,8 +52,9 @@ public class Main extends Application {
 			this.scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
 			primaryStage.setScene(scene);
 			primaryStage.show();
-			// ControllerでStageを使えるようにする。
+			// ControllerでApplication Stageを使えるようにする。
 			MainController controller = (MainController)loader.getController();
+			controller.setApplication(this);
 			controller.setPrimaryStage(primaryStage);
 			// 起動引数をコントローラに渡す(List<String>に変換されている)
 			controller.setArgs(this.getParameters().getRaw());
@@ -99,7 +103,32 @@ public class Main extends Application {
 			}
 		}
 	}
-
+	/**
+	 * デフォルトディレクトリを取得する。
+	 * @return	デフォルトディレクトリのパス
+	 */
+	public String getDefaultDir() {
+		return this.prop.getProperty(DEFAULT_DIR);
+	}
+	/**
+	 * デフォルトディレクトリを設定し、プロパティファイルに書き込む。
+	 * @param defaultDir	デフォルトディレクトリのパス
+	 */
+	public void setDefaultDir(String defaultDir) {
+		this.prop.setProperty(DEFAULT_DIR, defaultDir);
+		Path path = Paths.get(PROP_PATH);
+		try(BufferedWriter bw = Files.newBufferedWriter(path, StandardCharsets.UTF_8)){
+			LocalDateTime date = LocalDateTime.now();
+			String text = date.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+			this.prop.store(bw,text);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}	
+	}
+	/**
+	 * メイン
+	 * @param args	起動引数
+	 */
 	public static void main(String[] args) {
 		launch(args);
 	}
