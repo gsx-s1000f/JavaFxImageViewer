@@ -2,6 +2,7 @@ package application;
 	
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -21,7 +22,7 @@ import javafx.fxml.FXMLLoader;
 public class Main extends Application {
 
 	/** プロパティファイルパス */
-	final static String PROP_PATH = "./app/application.properties";
+	static String propFilePath = "./app/application.properties";
 	/** プロパティ */
 	final Properties prop = new Properties();
 	/** プロパティキー：初期フォルダ */
@@ -58,6 +59,7 @@ public class Main extends Application {
 			controller.setPrimaryStage(primaryStage);
 			// 起動引数をコントローラに渡す(List<String>に変換されている)
 			controller.setArgs(this.getParameters().getRaw());
+
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
@@ -67,7 +69,7 @@ public class Main extends Application {
 	 */
 	@Override
 	public void init() throws Exception {
-		Path path = Paths.get(PROP_PATH);
+		Path path = Paths.get(propFilePath);
 		if(Files.exists(path)) {
 			try (BufferedReader br = Files.newBufferedReader(path, StandardCharsets.UTF_8)) {
 				prop.load(br);
@@ -95,7 +97,7 @@ public class Main extends Application {
 			this.prop.setProperty(HIGHT_NAME, String.valueOf(this.scene.getHeight()));
 			this.prop.setProperty(WIDTH_NAME, String.valueOf(this.scene.getWidth()));
 			
-			Path path = Paths.get(PROP_PATH);
+			Path path = Paths.get(propFilePath);
 			try(BufferedWriter bw = Files.newBufferedWriter(path, StandardCharsets.UTF_8)){
 				LocalDateTime date = LocalDateTime.now();
 				String text = date.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
@@ -116,7 +118,7 @@ public class Main extends Application {
 	 */
 	public void setDefaultDir(String defaultDir) {
 		this.prop.setProperty(DEFAULT_DIR, defaultDir);
-		Path path = Paths.get(PROP_PATH);
+		Path path = Paths.get(propFilePath);
 		try(BufferedWriter bw = Files.newBufferedWriter(path, StandardCharsets.UTF_8)){
 			LocalDateTime date = LocalDateTime.now();
 			String text = date.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
@@ -130,6 +132,19 @@ public class Main extends Application {
 	 * @param args	起動引数
 	 */
 	public static void main(String[] args) {
+		String classPath = System.getProperty("java.class.path");
+		if (classPath != null) {
+			for (String path: classPath.split(";", 0)) {
+				if (path.endsWith("imageviewer.jar")) {
+					File file = new File(path);
+					if(file.exists()) {
+						String parent = file.getParentFile().getAbsolutePath();
+						propFilePath = parent + File.separator + "application.properties";
+					}
+					break;
+				}
+			}
+		}
 		launch(args);
 	}
 }

@@ -46,7 +46,7 @@ public class MainController implements Initializable {
 
     @FXML
     private Label status;
-
+    
     List<String> args = null;
     
     /** イメージ */
