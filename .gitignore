@@ -3,5 +3,4 @@ bin/
 # 生成JRE
 jre-min
 
-*.jpg
 application.properties
