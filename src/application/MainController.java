@@ -18,6 +18,7 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.image.Image;
@@ -37,6 +38,13 @@ public class MainController implements Initializable {
 
     @FXML
     private ImageView imageView;
+    
+
+    @FXML
+    private CheckMenuItem menuHorizontalFit;
+
+    @FXML
+    private CheckMenuItem menuVerticalFit;
 
     @FXML
     private BorderPane pain;
@@ -59,7 +67,35 @@ public class MainController implements Initializable {
     Main application;
     /** アプリケーションのプライマリステージ */
     Stage primaryStage;
-    
+
+    @FXML
+    void onActionCheckMenuItem(ActionEvent event) {
+    	boolean isHorizontalFit = this.menuHorizontalFit.isSelected();
+    	boolean isVerticalFit = this.menuVerticalFit.isSelected();
+    	double horizontalZoom = (this.scroll.getWidth() - 2) / this.image.getWidth();	// 左右のボーダー分2px引く
+    	double verticalZoom = (this.scroll.getHeight() - 2) / this.image.getHeight();	// 上下のボーダー分2px引く
+		System.out.println("Image size:" + this.image.getWidth() + "*" + this.image.getHeight());
+		System.out.println("ScrollPain size:" + this.scroll.getWidth() + "*" + this.scroll.getHeight());
+		double z = 1;
+    	if(isHorizontalFit && isVerticalFit) {
+    		z = Math.min(horizontalZoom, verticalZoom);
+    	} else if(isHorizontalFit) {
+    		z = horizontalZoom;
+    	} else if(isVerticalFit) {
+    		z = verticalZoom;
+    	}
+		double height = this.image.getHeight() * z;
+		double width = this.image.getWidth() * z;
+    	this.zoom = (int)Math.floor(Math.min(horizontalZoom, verticalZoom) * 100) ;
+		this.imageView.setFitHeight(height);
+		this.imageView.setFitWidth(width);
+		System.out.println("ImageView size:" + this.imageView.getFitWidth() + "*" + this.imageView.getFitHeight());
+		
+		this.application.setHorizontalFit(isHorizontalFit);
+		this.application.setVerticalFit(isVerticalFit);
+		System.out.println(this.zoom);
+	}
+
     /**
      * ペインのドラッグ＆ドロップイベント
      * @param event
@@ -209,6 +245,8 @@ public class MainController implements Initializable {
 	 */
 	public void setApplication(Main application) {
 		this.application = application;
+		this.menuHorizontalFit.setSelected(this.application.getHorizontalFit());
+		this.menuVerticalFit.setSelected(this.application.getVerticalFit());
 	}
 	/**
 	 * 外部からプライマリステージを設定する
@@ -245,6 +283,7 @@ public class MainController implements Initializable {
 			} catch (MalformedURLException e) {
 				e.printStackTrace();
 			}
+			this.onActionCheckMenuItem(null);
 		}
 	}
 	void forwardImage() {

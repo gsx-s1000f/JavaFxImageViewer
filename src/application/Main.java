@@ -31,6 +31,10 @@ public class Main extends Application {
 	final String HIGHT_NAME = "app.hight";
 	/** プロパティキー：幅 */
 	final String WIDTH_NAME = "app.width";
+	/** プロパティキー：縦フィット*/
+	final String HORIZONTAL_FIT = "horizontal.fit";
+	/** プロパティキー：横フィット*/
+	final String VERTICAL_FIT = "vertical.fit";
 	/** デフォルトプロパティ値：高さ */
 	double DEFAULT_HIGHT = 480;
 	/** デフォルトプロパティ値：幅 */
@@ -38,7 +42,7 @@ public class Main extends Application {
 
 	/** Scene*/
 	Scene scene;
-	
+
 	/**
 	 * アプリケーション機動
 	 */
@@ -49,6 +53,7 @@ public class Main extends Application {
 			BorderPane root = (BorderPane)loader.load();
 			double hight = Double.parseDouble(prop.getProperty(HIGHT_NAME));
 			double width = Double.parseDouble(prop.getProperty(WIDTH_NAME));
+
 			this.scene = new Scene(root, width, hight);
 			this.scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
 			primaryStage.setScene(scene);
@@ -90,19 +95,14 @@ public class Main extends Application {
 	@Override
 	public void stop() throws Exception {
 		System.out.println("application close.");
-		double hight = Double.parseDouble(prop.getProperty(HIGHT_NAME));
-		double width = Double.parseDouble(prop.getProperty(WIDTH_NAME));		
-		if(this.scene.getHeight() != hight ||
-				this.scene.getWidth() != width) {
-			this.prop.setProperty(HIGHT_NAME, String.valueOf(this.scene.getHeight()));
-			this.prop.setProperty(WIDTH_NAME, String.valueOf(this.scene.getWidth()));
-			
-			Path path = Paths.get(propFilePath);
-			try(BufferedWriter bw = Files.newBufferedWriter(path, StandardCharsets.UTF_8)){
-				LocalDateTime date = LocalDateTime.now();
-				String text = date.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
-				this.prop.store(bw,text);
-			}
+		this.prop.setProperty(HIGHT_NAME, String.valueOf(this.scene.getHeight()));
+		this.prop.setProperty(WIDTH_NAME, String.valueOf(this.scene.getWidth()));
+		
+		Path path = Paths.get(propFilePath);
+		try(BufferedWriter bw = Files.newBufferedWriter(path, StandardCharsets.UTF_8)){
+			LocalDateTime date = LocalDateTime.now();
+			String text = date.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+			this.prop.store(bw,text);
 		}
 	}
 	/**
@@ -111,6 +111,36 @@ public class Main extends Application {
 	 */
 	public String getDefaultDir() {
 		return this.prop.getProperty(DEFAULT_DIR);
+	}
+	/**
+	 * 縦フィット取得
+	 * @return
+	 */
+	public boolean getVerticalFit() {
+		String fit = this.prop.getProperty(VERTICAL_FIT);
+		return fit != null && fit.equals("1"); 
+	}
+	/**
+	 * 縦フィットを設定
+	 * @param fit
+	 */
+	public void setVerticalFit(boolean fit) {
+		this.prop.setProperty(VERTICAL_FIT, fit? "1": "0");
+	}
+	/**
+	 * 横フィット取得
+	 * @return
+	 */
+	public boolean getHorizontalFit() {
+		String fit = this.prop.getProperty(HORIZONTAL_FIT);
+		return fit != null && fit.equals("1"); 
+	}
+	/**
+	 * 横フィットを設定
+	 * @param fit
+	 */
+	public void setHorizontalFit(boolean fit) {
+		this.prop.setProperty(HORIZONTAL_FIT, fit? "1": "0");
 	}
 	/**
 	 * デフォルトディレクトリを設定し、プロパティファイルに書き込む。
