@@ -1,17 +1,10 @@
 package application;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Comparator;
 import java.util.List;
 import java.util.ResourceBundle;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import application.util.ImageUtils;
 import javafx.collections.ObservableList;
@@ -39,9 +32,9 @@ public class MainController implements Initializable {
     @FXML
     private ImageView imageView;
     
-    private ImageView imageLeft;
+    private ImageView imageLeft = new ImageView();
     
-    private ImageView imageRight;
+    private ImageView imageRight = new ImageView();
     
 
     @FXML
@@ -107,22 +100,46 @@ public class MainController implements Initializable {
     	}else if (event.getSource().equals(this.menuOpen2right) && this.menuOpen2right.isSelected()) {
 			this.menuOpen2left.setSelected(false);
 			this.pain.setLeft(null);
-			Image next = new Image(ImageUtils.nextImage(this.image.getUrl()));
-			this.imageRight = new ImageView(next);
+			if (this.image != null) {
+				String mainUrl = this.image.getUrl();
+				String nextUrl = ImageUtils.nextImage(mainUrl);
+				if(!mainUrl.equals(nextUrl)) {
+					this.imageRight = new ImageView(new Image(nextUrl));
+				}
+				
+			}
 			this.pain.setRight(this.imageRight);
-			System.out.println(this.pain.getWidth());
-			this.imageView.setFitWidth(pain.getWidth() / 2);
-			this.imageRight.setFitWidth(pain.getWidth() / 2);
+			this.zoom = ImageUtils.fitImage(this.imageView, (this.pain.getWidth() / 2) - 1, this.scroll.getHeight() - 1);
+			ImageUtils.fitImage(this.imageRight, (this.pain.getWidth() / 2) - 1, this.scroll.getHeight() - 1);
+	    	this.menuHorizontalFit.setSelected(true);
+	    	this.menuVerticalFit.setSelected(true);
+	    	this.menuHorizontalFit.setDisable(true);
+	    	this.menuVerticalFit.setDisable(true);
+	    	return;
     	}else if (event.getSource().equals(this.menuOpen2left) && this.menuOpen2left.isSelected()) {
 			this.menuOpen2right.setSelected(false);
 			this.pain.setRight(null);
-			Image next = new Image(ImageUtils.nextImage(this.image.getUrl()));
-			this.imageLeft = new ImageView(next);
-			this.pain.setLeft(this.imageLeft);    		
-			this.imageView.setFitWidth(pain.getWidth() / 2);
-			this.imageLeft.setFitWidth(pain.getWidth() / 2);
+			if (this.image != null) {
+				String mainUrl = this.image.getUrl();
+				String nextUrl = ImageUtils.nextImage(mainUrl);
+				if(!mainUrl.equals(nextUrl)) {
+					this.imageLeft = new ImageView(new Image(nextUrl));
+				}
+				
+			}
+			this.pain.setLeft(this.imageLeft);
+			this.zoom = ImageUtils.fitImage(this.imageView, (this.pain.getWidth() / 2) - 1, this.scroll.getHeight() - 1);
+			ImageUtils.fitImage(this.imageLeft, (this.pain.getWidth() / 2) - 1, this.scroll.getHeight() - 1);
+	    	this.menuHorizontalFit.setSelected(true);
+	    	this.menuVerticalFit.setSelected(true);
+	    	this.menuHorizontalFit.setDisable(true);
+	    	this.menuVerticalFit.setDisable(true);
+    	}else if(!this.menuOpen2left.isSelected() && !this.menuOpen2right.isSelected()) {
+			this.pain.setLeft(null);
+			this.pain.setRight(null);
+	    	this.menuHorizontalFit.setDisable(false);
+	    	this.menuVerticalFit.setDisable(false);
     	}
-		System.out.println(this.zoom);
 	}
 
     /**
@@ -267,10 +284,6 @@ public class MainController implements Initializable {
 				event.acceptTransferModes(TransferMode.ANY);
 			}
 		});
-		this.pain.setLeft(new Label("あいうえお"));
-		this.pain.setRight(new Label("かきくけこ"));
-		this.pain.setLeft(null);
-		this.pain.setRight(null);
 	}
 	/**
 	 * 外部からアプリケーションを設定する。
@@ -320,16 +333,31 @@ public class MainController implements Initializable {
 		}
 	}
 	void forwardImage() {
-		if(image == null) {
+		if(this.image == null) {
 			return;
 		}
 		String url = this.image.getUrl();
 		if(url == null || url.length() < 1) {
 			return;
 		}
-		url = ImageUtils.forwardImage(url);
-		this.changeImage(new File(ImageUtils.imageUrl2Path(url)));
-
+		String forward = ImageUtils.forwardImage(url);
+		if(forward.equals(url)) {
+			return;
+		}
+		if (this.menuOpen2right.isSelected() || this.menuOpen2left.isSelected()) {
+			if(this.menuOpen2right.isSelected()) {
+				this.imageRight.setImage(this.image);
+				ImageUtils.fitImage(this.imageRight, (this.pain.getWidth() / 2) - 1, this.scroll.getHeight() - 1);
+			} else if(this.menuOpen2left.isSelected()) {
+				this.imageLeft.setImage(this.image);
+				ImageUtils.fitImage(this.imageLeft, (this.pain.getWidth() / 2) - 1, this.scroll.getHeight() - 1);
+			}
+			this.image = new Image(forward);
+			this.imageView.setImage(this.image);
+			this.zoom = ImageUtils.fitImage(this.imageView, (this.pain.getWidth() / 2) - 1, this.scroll.getHeight() - 1);
+		}else {
+			this.changeImage(new File(ImageUtils.imageUrl2Path(forward)));
+		}
 	}
 	void nextImage() {
 		if(image == null) {
@@ -339,7 +367,27 @@ public class MainController implements Initializable {
 		if(url == null || url.length() < 1) {
 			return;
 		}
-		url = ImageUtils.nextImage(url);
-		this.changeImage(new File(ImageUtils.imageUrl2Path(url)));
+		String next = ImageUtils.nextImage(url);
+		if(next.equals(url)) {
+			return;
+		}
+		if (this.menuOpen2right.isSelected() || this.menuOpen2left.isSelected()) {
+			String nextnext = ImageUtils.nextImage(next);
+			if (nextnext.equals(next)) {
+				return;
+			}
+			if(this.menuOpen2right.isSelected()) {
+				this.imageRight.setImage(new Image(nextnext));
+				ImageUtils.fitImage(this.imageRight, (this.pain.getWidth() / 2) - 1, this.scroll.getHeight() - 1);
+			} else if(this.menuOpen2left.isSelected()) {
+				this.imageLeft.setImage(new Image(nextnext));
+				ImageUtils.fitImage(this.imageLeft, (this.pain.getWidth() / 2) - 1, this.scroll.getHeight() - 1);
+			}
+			this.image = new Image(next);
+			this.imageView.setImage(this.image);
+			this.zoom = ImageUtils.fitImage(this.imageView, (this.pain.getWidth() / 2) - 1, this.scroll.getHeight() - 1);
+		} else {
+			this.changeImage(new File(ImageUtils.imageUrl2Path(next)));
+		}
 	}
 }

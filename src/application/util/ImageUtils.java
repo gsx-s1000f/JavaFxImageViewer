@@ -9,6 +9,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+
 /**
  * 画像ファイルまわりのユーティリティを集めたクラス
  */
@@ -77,4 +80,23 @@ public class ImageUtils {
 	public static String nextImage(String url) {
 		return searchImage(url, true);
 	}
+	/**
+	 * ImageViewに設定されたImageを指定のサイズにフィットさせる
+	 * @param view	ImageView
+	 * @param parentWdith	フィットさせる幅
+	 * @param parentHeight	フィットさせる高さ
+	 * @return 倍率(%)
+	 */
+    public static int fitImage(ImageView view, double parentWdith, double parentHeight) {
+    	Image image = view.getImage();
+    	double horizontalZoom = parentWdith / image.getWidth();
+    	double verticalZoom = parentHeight / image.getHeight();
+    	double z = Math.min(horizontalZoom, verticalZoom);
+    	double width = image.getWidth() * z;
+    	double height = image.getHeight() * z;
+    	view.setFitWidth(width);
+    	view.setFitHeight(height);
+    	return (int)Math.floor(z * 100);
+    }
+
 }
