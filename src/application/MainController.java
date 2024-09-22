@@ -13,7 +13,7 @@ import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import application.util.FileUtils;
+import application.util.ImageUtils;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -39,6 +39,10 @@ public class MainController implements Initializable {
     @FXML
     private ImageView imageView;
     
+    private ImageView imageLeft;
+    
+    private ImageView imageRight;
+    
 
     @FXML
     private CheckMenuItem menuHorizontalFit;
@@ -46,6 +50,12 @@ public class MainController implements Initializable {
     @FXML
     private CheckMenuItem menuVerticalFit;
 
+    @FXML
+    private CheckMenuItem menuOpen2right;
+
+    @FXML
+    private CheckMenuItem menuOpen2left;
+    
     @FXML
     private BorderPane pain;
 
@@ -70,29 +80,48 @@ public class MainController implements Initializable {
 
     @FXML
     void onActionCheckMenuItem(ActionEvent event) {
-    	boolean isHorizontalFit = this.menuHorizontalFit.isSelected();
-    	boolean isVerticalFit = this.menuVerticalFit.isSelected();
-    	double horizontalZoom = (this.scroll.getWidth() - 2) / this.image.getWidth();	// 左右のボーダー分2px引く
-    	double verticalZoom = (this.scroll.getHeight() - 2) / this.image.getHeight();	// 上下のボーダー分2px引く
-		System.out.println("Image size:" + this.image.getWidth() + "*" + this.image.getHeight());
-		System.out.println("ScrollPain size:" + this.scroll.getWidth() + "*" + this.scroll.getHeight());
-		double z = 1;
-    	if(isHorizontalFit && isVerticalFit) {
-    		z = Math.min(horizontalZoom, verticalZoom);
-    	} else if(isHorizontalFit) {
-    		z = horizontalZoom;
-    	} else if(isVerticalFit) {
-    		z = verticalZoom;
+    	if(event == null || event.getSource().equals(this.menuHorizontalFit) || event.getSource().equals(this.menuVerticalFit)) {
+	    	boolean isHorizontalFit = this.menuHorizontalFit.isSelected();
+	    	boolean isVerticalFit = this.menuVerticalFit.isSelected();
+	    	double horizontalZoom = (this.scroll.getWidth() - 2) / this.image.getWidth();	// 左右のボーダー分2px引く
+	    	double verticalZoom = (this.scroll.getHeight() - 2) / this.image.getHeight();	// 上下のボーダー分2px引く
+			System.out.println("Image size:" + this.image.getWidth() + "*" + this.image.getHeight());
+			System.out.println("ScrollPain size:" + this.scroll.getWidth() + "*" + this.scroll.getHeight());
+			double z = 1;
+	    	if(isHorizontalFit && isVerticalFit) {
+	    		z = Math.min(horizontalZoom, verticalZoom);
+	    	} else if(isHorizontalFit) {
+	    		z = horizontalZoom;
+	    	} else if(isVerticalFit) {
+	    		z = verticalZoom;
+	    	}
+			double height = this.image.getHeight() * z;
+			double width = this.image.getWidth() * z;
+	    	this.zoom = (int)Math.floor(Math.min(horizontalZoom, verticalZoom) * 100) ;
+			this.imageView.setFitHeight(height);
+			this.imageView.setFitWidth(width);
+			System.out.println("ImageView size:" + this.imageView.getFitWidth() + "*" + this.imageView.getFitHeight());
+			
+			this.application.setHorizontalFit(isHorizontalFit);
+			this.application.setVerticalFit(isVerticalFit);
+    	}else if (event.getSource().equals(this.menuOpen2right) && this.menuOpen2right.isSelected()) {
+			this.menuOpen2left.setSelected(false);
+			this.pain.setLeft(null);
+			Image next = new Image(ImageUtils.nextImage(this.image.getUrl()));
+			this.imageRight = new ImageView(next);
+			this.pain.setRight(this.imageRight);
+			System.out.println(this.pain.getWidth());
+			this.imageView.setFitWidth(pain.getWidth() / 2);
+			this.imageRight.setFitWidth(pain.getWidth() / 2);
+    	}else if (event.getSource().equals(this.menuOpen2left) && this.menuOpen2left.isSelected()) {
+			this.menuOpen2right.setSelected(false);
+			this.pain.setRight(null);
+			Image next = new Image(ImageUtils.nextImage(this.image.getUrl()));
+			this.imageLeft = new ImageView(next);
+			this.pain.setLeft(this.imageLeft);    		
+			this.imageView.setFitWidth(pain.getWidth() / 2);
+			this.imageLeft.setFitWidth(pain.getWidth() / 2);
     	}
-		double height = this.image.getHeight() * z;
-		double width = this.image.getWidth() * z;
-    	this.zoom = (int)Math.floor(Math.min(horizontalZoom, verticalZoom) * 100) ;
-		this.imageView.setFitHeight(height);
-		this.imageView.setFitWidth(width);
-		System.out.println("ImageView size:" + this.imageView.getFitWidth() + "*" + this.imageView.getFitHeight());
-		
-		this.application.setHorizontalFit(isHorizontalFit);
-		this.application.setVerticalFit(isVerticalFit);
 		System.out.println(this.zoom);
 	}
 
@@ -238,6 +267,10 @@ public class MainController implements Initializable {
 				event.acceptTransferModes(TransferMode.ANY);
 			}
 		});
+		this.pain.setLeft(new Label("あいうえお"));
+		this.pain.setRight(new Label("かきくけこ"));
+		this.pain.setLeft(null);
+		this.pain.setRight(null);
 	}
 	/**
 	 * 外部からアプリケーションを設定する。
@@ -287,45 +320,26 @@ public class MainController implements Initializable {
 		}
 	}
 	void forwardImage() {
-		String nowImage = this.status.getText();
-		if(nowImage == null || nowImage.length() < 1) {
+		if(image == null) {
 			return;
 		}
-		Path image = Paths.get(nowImage);
-		Path parent = image.getParent();
-		
-		try (Stream<Path> stream = Files.list(parent)){
-			List<Path> paths = stream.filter(p -> !Files.isDirectory(p))
-				.filter(p -> FileUtils.checkExtension(p, "bmp", "jpg", "jpeg", "png"))
-				.sorted(Comparator.reverseOrder()).collect(Collectors.toList());
-			int index = paths.indexOf(image);
-			if (index > -1 && index + 1 < paths.size()) {
-				this.changeImage(paths.get(index + 1).toFile());
-			}
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		String url = this.image.getUrl();
+		if(url == null || url.length() < 1) {
+			return;
 		}
+		url = ImageUtils.forwardImage(url);
+		this.changeImage(new File(ImageUtils.imageUrl2Path(url)));
+
 	}
 	void nextImage() {
-		String nowImage = this.status.getText();
-		if(nowImage == null || nowImage.length() < 1) {
+		if(image == null) {
 			return;
 		}
-		Path image = Paths.get(nowImage);
-		Path parent = image.getParent();
-		
-		try (Stream<Path> stream = Files.list(parent)){
-			List<Path> paths = stream.filter(p -> !Files.isDirectory(p))
-				.filter(p -> FileUtils.checkExtension(p, "bmp", "jpg", "jpeg", "png"))
-				.sorted(Comparator.naturalOrder()).collect(Collectors.toList());
-			int index = paths.indexOf(image);
-			if (index > -1 && index + 1 < paths.size()) {
-				this.changeImage(paths.get(index + 1).toFile());
-			}
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		String url = this.image.getUrl();
+		if(url == null || url.length() < 1) {
+			return;
 		}
+		url = ImageUtils.nextImage(url);
+		this.changeImage(new File(ImageUtils.imageUrl2Path(url)));
 	}
 }

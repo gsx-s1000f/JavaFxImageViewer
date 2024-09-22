@@ -21,6 +21,8 @@
           </Menu>
           <Menu mnemonicParsing="false" text="Edit">
             <items>
+                  <CheckMenuItem fx:id="menuOpen2right" mnemonicParsing="false" onAction="#onActionCheckMenuItem" text="見開き（左→右）" />
+                  <CheckMenuItem fx:id="menuOpen2left" mnemonicParsing="false" onAction="#onActionCheckMenuItem" text="見開き（左←右）" />
                   <CheckMenuItem fx:id="menuVerticalFit" mnemonicParsing="false" onAction="#onActionCheckMenuItem" text="縦フィット" />
                   <CheckMenuItem fx:id="menuHorizontalFit" mnemonicParsing="false" onAction="#onActionCheckMenuItem" text="横フィット" />
             </items>
