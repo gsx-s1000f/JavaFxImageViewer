@@ -1,6 +1,8 @@
 package application.util;
 
 import java.io.IOException;
+import java.net.URLDecoder;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -38,7 +40,7 @@ public class ImageUtils {
 	 * @return	path文字列
 	 */
 	public static String imageUrl2Path(String url) {
-		return url.replaceFirst("file:/", "");
+		return URLDecoder.decode(url, Charset.defaultCharset()).replaceFirst("file:/", "");
 	}
 	/**
 	 * 引数のパスと同じフォルダにある画像を探します。
